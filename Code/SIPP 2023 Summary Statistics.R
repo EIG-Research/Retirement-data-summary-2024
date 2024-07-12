@@ -47,7 +47,9 @@ sipp_2023 <- read.csv("sipp_2023_wrangled.csv") # 2023 simplified dataset from s
 sipp_2023 %>%
   group_by(FULL_PART_TIME,ANY_RETIREMENT_ACCESS) %>%
   summarise(Observations = n(),
-            weighted_n = sum(WPFINWGT)) 
+            weighted_n = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  mutate(share = weighted_n/sum(weighted_n)) 
 
 
 
