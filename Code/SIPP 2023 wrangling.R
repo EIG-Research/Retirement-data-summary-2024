@@ -85,6 +85,7 @@ load("SIPP 2023.RData")
 names(sipp_2023)
 
 sipp_2023 = sipp_2023 %>%
+  filter(MONTHCODE == 12) %>% # Retirement data is collected in December, so we can drop all other months here
   mutate(
     EDUCATION = case_when(
       EEDUC >=31 & EEDUC <= 39 ~ "High School or less",
@@ -102,7 +103,7 @@ sipp_2023 = sipp_2023 %>%
       ERACE == 2 & EORIGIN ==2 ~ "Non-Hispanic Black",
       ERACE == 3 & EORIGIN ==2 ~ "Asian",
       EORIGIN == 1 ~ "Hispanic",
-      ERACE == 4 ~ "Mixed/Other",
+      ERACE == 4 & EORIGIN == 2 ~ "Mixed/Other",
       TRUE ~ "Missing"
     ),
     EMPLOYMENT_TYPE = case_when(
@@ -124,28 +125,34 @@ sipp_2023 = sipp_2023 %>%
     ),
     TOTYEARINC = TFTOTINC*12,
     ANY_RETIREMENT_ACCESS = case_when(
-      EMJOB_401 == 1 ~ "Yes",
-      EMJOB_IRA == 1 ~ "Yes",
-      EMJOB_PEN == 1 ~ "Yes",
+      EMJOB_401 == 1 ~ "Yes", # Any 401k, 403b, 503b, or Thrift Savings Plan account(s) provided through main employer or business during the reference period.
+      EMJOB_IRA == 1 ~ "Yes", # Any IRA or Keogh account(s) provided through main employer or business during the reference period.
+      EMJOB_PEN == 1 ~ "Yes", # Any defined-benefit or cash balance plan(s) provided through main employer or business during the reference period.
       EMJOB_401 == 2 ~ "No",
       EMJOB_IRA == 2 ~ "No",
       EMJOB_PEN == 2 ~ "No",
-      EOWN_THR401  == 2 ~ "No",
-      EOWN_IRAKEO  == 2 ~ "No",
-      EOWN_PENSION == 2 ~ "No",
+      # EOWN_THR401  == 2 ~ "No",
+      # EOWN_IRAKEO  == 2 ~ "No",
+      # EOWN_PENSION == 2 ~ "No",
       TRUE ~ "Missing"
     ),
     PARTICIPATING = case_when(
-      ESCNTYN_401 == 1 ~ "Yes",
+      ESCNTYN_401 == 1 ~ "Yes", # During the reference period, respondent contributed to the 401k, 403b, 503b, or Thrift Savings Plan account(s) provided through their main employer or business.
       EECNTYN_401 == 1 ~ "Yes", # if they report having employer matching then we term them as participating 
+      ESCNTYN_PEN == 1 ~ "Yes", # During the reference period, respondent contributed to the defined-benefit or cash balance plan(s) provided through their main employer or business.
+      ESCNTYN_IRA == 1 ~ "Yes", # During the reference period, respondent contributed to the IRA or Keogh account(s) provided through their main employer or business.
       ESCNTYN_401 == 2 ~ "No",
-      is.na(ESCNTYN_401) ~ "No",
+      ESCNTYN_PEN == 2 ~ "No",
+      ESCNTYN_IRA == 2 ~ "No",
+      # is.na(ESCNTYN_401) ~ "No",
       TRUE ~ "Missing"
     ),
     MATCHING = case_when(
-      EECNTYN_401 == 1 ~ "Yes",
+      EECNTYN_401 == 1 ~ "Yes", # Main employer or business contributed to respondent's 401k, 403b, 503b, or Thrift Savings Plan account(s) during the reference period.
+      EECNTYN_IRA == 1  ~ "Yes", # Main employer or business contributed to respondent's IRA or Keogh account(s) during the reference period.
       EECNTYN_401 == 2 ~ "No",
-      is.na(EECNTYN_401) ~ "No",
+      EECNTYN_IRA == 2 ~ "No",
+      # is.na(EECNTYN_401) ~ "No",
       TRUE ~ "Missing"
     ),
     METRO_STATUS = case_when(
@@ -174,19 +181,16 @@ sipp_2023 = sipp_2023 %>%
   "PARTICIPATING",
   "MATCHING", "MONTHCODE", "TJB1_JOBHRS1", "TOTYEARINC",
   "in_age_range","FULL_PART_TIME")
-  
-
-
 
 # Check for filtering by different criteria 
 # General filtering: Retirement data is only collected once, so filter to only have one month per person
-# Check for consistency of outcome varaibles of interest over months
-table(sipp_2023$MONTHCODE, sipp_2023$ANY_RETIREMENT_ACCESS) # NEED TO FIGURE OUT WHO THESE MISSING PEOPLE ARE
-table(sipp_2023$MONTHCODE, sipp_2023$PARTICIPATING)
-table(sipp_2023$MONTHCODE, sipp_2023$MATCHING)
-
-sipp_2023 = sipp_2023 %>%
-  filter(MONTHCODE == 12)
+# Check for consistency of outcome variables of interest over months
+# table(sipp_2023$MONTHCODE, sipp_2023$ANY_RETIREMENT_ACCESS) # NEED TO FIGURE OUT WHO THESE MISSING PEOPLE ARE
+# table(sipp_2023$MONTHCODE, sipp_2023$PARTICIPATING)
+# table(sipp_2023$MONTHCODE, sipp_2023$MATCHING)
+# 
+# sipp_2023 = sipp_2023 %>%
+#   filter(MONTHCODE == 12)
 
 ################################
 # demographic filtering: 
