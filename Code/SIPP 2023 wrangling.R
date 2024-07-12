@@ -14,6 +14,7 @@ library(ggplot2)
 #################
 ### Set paths ###
 #################
+
 # Define user-specific project directories
 project_directories <- list(
   "bglasner" = "C:/Users/bglasner/EIG Dropbox/Benjamin Glasner/GitHub/Retirement-data-summary-2024",
