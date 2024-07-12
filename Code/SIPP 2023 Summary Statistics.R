@@ -52,7 +52,6 @@ sipp_2023 %>%
   group_by(FULL_PART_TIME) %>%
   mutate(share = weighted_n/sum(weighted_n)) 
 
-
 sipp_2023 %>%
   filter(PARTICIPATING != "Missing") %>%
   group_by(FULL_PART_TIME,PARTICIPATING) %>%
