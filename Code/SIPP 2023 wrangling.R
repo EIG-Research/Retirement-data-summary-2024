@@ -14,7 +14,6 @@ library(ggplot2)
 #################
 ### Set paths ###
 #################
-
 # Define user-specific project directories
 project_directories <- list(
   "bglasner" = "C:/Users/bglasner/EIG Dropbox/Benjamin Glasner/GitHub/Retirement-data-summary-2024",
@@ -77,11 +76,11 @@ setwd(path_data)
 ####################
 #### load data #####
 ####################
-# sipp_2023 <- read_dta("pu2023.dta")
-# save(sipp_2023, file = "SIPP 2023.RData")
-load("SIPP 2023.RData")
+mem.maxVSize(1000000000000)
+sipp_2023 <- read_dta("pu2023.dta")
 
-# sipp_2023 = read.csv("pu2023.csv") # 2023 simplified dataset from stata export.
+# save(sipp_2023, file = "SIPP 2023.RData")
+# load("SIPP 2023.RData")
 
 names(sipp_2023)
 
@@ -179,25 +178,17 @@ sipp_2023 = sipp_2023 %>%
       TAGE >= 66 & TAGE <= 100 ~ "no",
       TRUE ~ NA 
       ) # 18-65 ages
-  ) %>%
-  select("SHHADID", "SPANEL", "SSUID", "SWAVE", "PNUM", "MONTHCODE", "WPFINWGT",
-  "TAGE", "EDUCATION", "SEX", "RACE", "METRO_STATUS",
-  "EMPLOYMENT_TYPE", "CLASS_OF_WORKER",
-  "TFTOTINC",
-  "ANY_RETIREMENT_ACCESS",
-  "PARTICIPATING",
-  "MATCHING", "MONTHCODE", "TJB1_JOBHRS1", "TOTYEARINC",
-  "in_age_range","FULL_PART_TIME")
+  )
 
 # Check for filtering by different criteria 
 # General filtering: Retirement data is only collected once, so filter to only have one month per person
 # Check for consistency of outcome variables of interest over months
-# table(sipp_2023$MONTHCODE, sipp_2023$ANY_RETIREMENT_ACCESS) # NEED TO FIGURE OUT WHO THESE MISSING PEOPLE ARE
-# table(sipp_2023$MONTHCODE, sipp_2023$PARTICIPATING)
-# table(sipp_2023$MONTHCODE, sipp_2023$MATCHING)
-# 
-# sipp_2023 = sipp_2023 %>%
-#   filter(MONTHCODE == 12)
+
+# NEED TO FIGURE OUT WHO THESE MISSING PEOPLE ARE
+table(sipp_2023$MONTHCODE, sipp_2023$ANY_RETIREMENT_ACCESS)
+table(sipp_2023$MONTHCODE, sipp_2023$PARTICIPATING)
+table(sipp_2023$MONTHCODE, sipp_2023$MATCHING)
+ 
 
 ################################
 # demographic filtering: 
@@ -263,9 +254,36 @@ sipp_2023 %>%
 sipp_2023 = sipp_2023 %>%
   filter(TFTOTINC >0)  # earning an income 
 
+# all missing access are zero income earners
+table(sipp_2023$ANY_RETIREMENT_ACCESS)
 
-table(sipp_2023$ANY_RETIREMENT_ACCESS) 
 table(sipp_2023$PARTICIPATING)
 table(sipp_2023$MATCHING)
+
+# participating are true missings
+sipp_2023 %>%
+  filter(PARTICIPATING == "Missing") %>%
+  select(PARTICIPATING, 
+         ESCNTYN_401,
+         EECNTYN_401,ESCNTYN_PEN,
+         ESCNTYN_IRA)
+
+# matching are true missings
+sipp_2023 %>%
+  filter(MATCHING == "Missing") %>%
+  select(MATCHING, 
+         EECNTYN_401,
+         EECNTYN_IRA)
+
+# save subset for export
+sipp_2023 = sipp_2023 %>%
+  select("SHHADID", "SPANEL", "SSUID", "SWAVE", "PNUM", "MONTHCODE", "WPFINWGT",
+         "TAGE", "EDUCATION", "SEX", "RACE", "METRO_STATUS",
+         "EMPLOYMENT_TYPE", "CLASS_OF_WORKER",
+         "TFTOTINC",
+         "ANY_RETIREMENT_ACCESS",
+         "PARTICIPATING",
+         "MATCHING", "MONTHCODE", "TJB1_JOBHRS1", "TOTYEARINC",
+         "in_age_range","FULL_PART_TIME")
 
 write.csv(sipp_2023, file.path(path_data, "sipp_2023_wrangled.csv"))
