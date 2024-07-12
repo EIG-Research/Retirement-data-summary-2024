@@ -49,6 +49,7 @@ sipp_2023 %>%
   summarise(Observations = n(),
             weighted_n = sum(WPFINWGT)) %>%
   ungroup() %>%
+  group_by(FULL_PART_TIME) %>%
   mutate(share = weighted_n/sum(weighted_n)) 
 
 
