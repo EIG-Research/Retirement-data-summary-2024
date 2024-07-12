@@ -131,9 +131,9 @@ sipp_2023 = sipp_2023 %>%
       EMJOB_401 == 2 ~ "No",
       EMJOB_IRA == 2 ~ "No",
       EMJOB_PEN == 2 ~ "No",
-      # EOWN_THR401  == 2 ~ "No",
-      # EOWN_IRAKEO  == 2 ~ "No",
-      # EOWN_PENSION == 2 ~ "No",
+      EOWN_THR401  == 2 ~ "No",
+      EOWN_IRAKEO  == 2 ~ "No",
+      EOWN_PENSION == 2 ~ "No",
       TRUE ~ "Missing"
     ),
     PARTICIPATING = case_when(
@@ -144,6 +144,9 @@ sipp_2023 = sipp_2023 %>%
       ESCNTYN_401 == 2 ~ "No",
       ESCNTYN_PEN == 2 ~ "No",
       ESCNTYN_IRA == 2 ~ "No",
+      EOWN_THR401  == 2 ~ "No",
+      EOWN_IRAKEO  == 2 ~ "No",
+      EOWN_PENSION == 2 ~ "No",
       # is.na(ESCNTYN_401) ~ "No",
       TRUE ~ "Missing"
     ),
@@ -152,6 +155,9 @@ sipp_2023 = sipp_2023 %>%
       EECNTYN_IRA == 1  ~ "Yes", # Main employer or business contributed to respondent's IRA or Keogh account(s) during the reference period.
       EECNTYN_401 == 2 ~ "No",
       EECNTYN_IRA == 2 ~ "No",
+      EOWN_THR401  == 2 ~ "No",
+      EOWN_IRAKEO  == 2 ~ "No",
+      EOWN_PENSION == 2 ~ "No",
       # is.na(EECNTYN_401) ~ "No",
       TRUE ~ "Missing"
     ),
