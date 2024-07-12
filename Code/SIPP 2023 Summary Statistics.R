@@ -53,4 +53,20 @@ sipp_2023 %>%
   mutate(share = weighted_n/sum(weighted_n)) 
 
 
+sipp_2023 %>%
+  filter(PARTICIPATING != "Missing") %>%
+  group_by(FULL_PART_TIME,PARTICIPATING) %>%
+  summarise(Observations = n(),
+            weighted_n = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  group_by(FULL_PART_TIME) %>%
+  mutate(share = weighted_n/sum(weighted_n)) 
 
+sipp_2023 %>%
+  filter(MATCHING != "Missing") %>%
+  group_by(FULL_PART_TIME,MATCHING) %>%
+  summarise(Observations = n(),
+            weighted_n = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  group_by(FULL_PART_TIME) %>%
+  mutate(share = weighted_n/sum(weighted_n)) 
