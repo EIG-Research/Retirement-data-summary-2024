@@ -59,7 +59,7 @@ sipp_2023 %>%
   filter(in_age_range =="yes") %>%
   filter(FULL_PART_TIME=="full time") %>%
   filter(PARTICIPATING!="Missing") %>%
-  rename(`Participates in Employer Retirement Plan` = PARTICIPATING)
+  rename(`Participates in Employer Retirement Plan` = PARTICIPATING) %>%
   group_by(`Participates in Employer Retirement Plan`) %>%
   summarise(count = sum(WPFINWGT)) %>%
   ungroup() %>%
@@ -138,10 +138,12 @@ earning_Deciles = sipp_2023 %>%
   mutate(INCOME_DECILE = ntile(TFTOTINC, 10)) %>%
   ungroup() %>%
   group_by(INCOME_DECILE) %>%
-  mutate(val = max(TFTOTINC,na.rm=TRUE)) %>%
+  mutate(val = median(TFTOTINC,na.rm=TRUE)) %>%
   select(val, INCOME_DECILE)
 
-earning_Deciles = unique(earning_Deciles)
+earning_Deciles = unique(earning_Deciles) %>% 
+  arrange(INCOME_DECILE) %>% 
+  mutate(val = val*12) 
 earning_Deciles
 
 
