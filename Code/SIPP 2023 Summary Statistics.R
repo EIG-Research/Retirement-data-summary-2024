@@ -1,4 +1,4 @@
-# load SIPP data and compile statistics for retirement demographics.
+# summary statistics on matching, participation, access
 
 rm(list = ls())
 ###########################
@@ -7,13 +7,14 @@ rm(list = ls())
 
 library(haven)
 library(dplyr)
+library(plotly)
 library(tidyr)
 library(openxlsx)
-library(ggplot2)
 
 #################
 ### Set paths ###
 #################
+
 # Define user-specific project directories
 project_directories <- list(
   "bglasner" = "C:/Users/bglasner/EIG Dropbox/Benjamin Glasner/GitHub/Retirement-data-summary-2024",
@@ -34,38 +35,220 @@ path_output = file.path(path_project, "Output")
 # Set working directory for SIPP data
 setwd(path_data)
 
-####################
-#### load data #####
-####################
+sipp_2023 = read.csv("sipp_2023_wrangled.csv")
 
-sipp_2023 <- read.csv("sipp_2023_wrangled.csv") # 2023 simplified dataset from stata export.
-
-########################
-#### Summary stats #####
-########################
+###################################################
+## Access, Participation, and Matching - overall ##
+###################################################
+# access
 
 sipp_2023 %>%
-  group_by(FULL_PART_TIME,ANY_RETIREMENT_ACCESS) %>%
-  summarise(Observations = n(),
-            weighted_n = sum(WPFINWGT)) %>%
+  filter(in_age_range =="yes") %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  rename(`Has access to an Employer Retirement Plan`=ANY_RETIREMENT_ACCESS) %>%
+  group_by(`Has access to an Employer Retirement Plan`) %>%
+  summarise(count = sum(WPFINWGT)) %>%
   ungroup() %>%
-  group_by(FULL_PART_TIME) %>%
-  mutate(share = weighted_n/sum(weighted_n)) 
+  mutate(Share = count / sum(count)*100) %>%
+  select(-c(count))
+
+
+# participate
 
 sipp_2023 %>%
+  filter(in_age_range =="yes") %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  filter(PARTICIPATING!="Missing") %>%
+  rename(`Participates in Employer Retirement Plan` = PARTICIPATING)
+  group_by(`Participates in Employer Retirement Plan`) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  mutate(Share = count / sum(count)*100) %>%
+  select(-c(count))
+
+
+# match
+  
+sipp_2023 %>%
+  filter(in_age_range =="yes") %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  filter(MATCHING!="Missing") %>%
+  rename(`Employer contributes to Employer Retirement Plan`=MATCHING) %>%
+  group_by(`Employer contributes to Employer Retirement Plan`) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  mutate(Share = count / sum(count)*100) %>%
+  select(-c(count))
+
+#########################################################
+## Access, Participation, Matching - by income deciles ##
+#########################################################
+
+ACCESS_decile = sipp_2023 %>%
+  filter(in_age_range =="yes") %>%
+  mutate(INCOME_DECILE = ntile(TFTOTINC, 10)) %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  group_by(ANY_RETIREMENT_ACCESS, INCOME_DECILE) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  group_by(INCOME_DECILE) %>%
+  mutate(Share = count / sum(count)*100) %>%
+  select(-c(count))  %>%
+  pivot_wider(names_from = INCOME_DECILE,
+              values_from = "Share")
+
+
+
+PARTICIPATE_decile = sipp_2023 %>%
+  filter(in_age_range =="yes") %>%
+  filter(PARTICIPATING !="Missing") %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  mutate(INCOME_DECILE = ntile(TFTOTINC, 10)) %>%
+  group_by(PARTICIPATING, INCOME_DECILE) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  group_by(INCOME_DECILE) %>%
+  mutate(Share = count / sum(count)*100) %>%
+  select(-c(count))%>%
+  pivot_wider(names_from = INCOME_DECILE,
+              values_from = "Share")
+
+MATCH_decile = sipp_2023 %>%
+  filter(in_age_range =="yes") %>%
+  filter(MATCHING!="Missing") %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  mutate(INCOME_DECILE = ntile(TFTOTINC, 10)) %>%
+  group_by(MATCHING, INCOME_DECILE) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  group_by(INCOME_DECILE) %>%
+  mutate(Share = count / sum(count)*100) %>%
+  select(-c(count))%>%
+  pivot_wider(names_from = INCOME_DECILE,
+              values_from = "Share")
+
+# export for plotting
+write.xlsx(ACCESS_decile, paste(path_output, "ACCESS_decile.xlsx", sep = "/"))
+write.xlsx(PARTICIPATE_decile, paste(path_output, "PARTICIPATE_decile.xlsx", sep = "/"))
+write.xlsx(MATCH_decile, paste(path_output, "MATCH_decile.xlsx", sep = "/"))
+
+earning_Deciles = sipp_2023 %>%
+  filter(in_age_range =="yes") %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  mutate(INCOME_DECILE = ntile(TFTOTINC, 10)) %>%
+  ungroup() %>%
+  group_by(INCOME_DECILE) %>%
+  mutate(val = max(TFTOTINC,na.rm=TRUE)) %>%
+  select(val, INCOME_DECILE)
+
+earning_Deciles = unique(earning_Deciles)
+earning_Deciles
+
+
+###############################
+## Matching - by race x edu ##
+
+MATCH_race_edu <- sipp_2023 %>% 
+  filter(in_age_range =="yes") %>%
+  filter(MATCHING!="Missing") %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  group_by(MATCHING, RACE, EDUCATION) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  group_by(RACE, EDUCATION) %>%
+  mutate(Share = round(count / sum(count)*100,1)) %>%
+  select(-c(count))
+
+    # education overall.
+    MATCH_race_edu_overall <- sipp_2023 %>% 
+      filter(in_age_range =="yes") %>%
+      filter(MATCHING!="Missing") %>%
+      filter(FULL_PART_TIME=="full time") %>%
+      group_by(MATCHING, RACE) %>%
+      summarise(count = sum(WPFINWGT)) %>%
+      ungroup() %>%
+      group_by(RACE) %>%
+      mutate(Share = round(count / sum(count)*100,1)) %>%
+      select(-c(count)) %>%
+      mutate(EDUCATION = "Overall")
+
+MATCH_race_edu = rbind(MATCH_race_edu, MATCH_race_edu_overall)
+
+MATCH_race_edu = MATCH_race_edu %>% filter(RACE!="Mixed/Other") %>%
+  mutate(MATCHING = case_when(
+    MATCHING =="Yes" ~ "Has Matching",
+    MATCHING =="No" ~ "Lacks Matching"
+  )) %>%
+  mutate(label = ifelse(MATCHING == "Has Matching", NA, Share)) %>%
+  mutate(order = case_when(
+    EDUCATION == "Overall" ~ 1,
+    EDUCATION == "High School or less" ~ 2,
+    EDUCATION == "Some college" ~ 3,
+    EDUCATION == "Bachelor's degree or higher" ~ 4
+  )) %>%
+  mutate(EDUCATION = ifelse(EDUCATION == "Bachelor's degree or higher","BA+",EDUCATION),
+         EDUCATION = ifelse(EDUCATION == "High School or less" , "HS or less",EDUCATION))
+      
+# R ggplot bar graphs for matching
+MATCH_race_edu %>%
+  ggplot(aes(fill=MATCHING, y=Share, x=reorder(EDUCATION,order))) + 
+  geom_bar(position="stack", stat="identity") +
+  facet_wrap(~RACE) +
+  labs(title = "Matching by Race and Education, 2023") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", color = "#1a654d"),
+        legend.position = "top",
+        legend.title= element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_blank(),
+        legend.text=element_text(size=7)) +
+  scale_fill_manual(values = c("#e1ad28","#b3d6dd")) +
+  geom_text(aes(label = scales::percent(round(label/100,3)),accuracy = 1L),vjust = 1.2,size=2.5)
+
+ggsave(paste(path_output, "plot.png",sep="/"))
+
+
+###############################################
+## Matching, Participation, Access - by sex ##
+###############################################
+
+sipp_2023 %>% 
+  filter(in_age_range =="yes") %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  group_by(ANY_RETIREMENT_ACCESS, SEX) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  mutate(Share = round(count / sum(count)*100,1)) %>%
+  select(-c(count)) %>%
+  filter(ANY_RETIREMENT_ACCESS != "Missing") %>%
+  pivot_wider(names_from = SEX,
+              values_from = Share) %>%
+  mutate(`Female - Male Participating Gap` = Female - Male)
+
+sipp_2023 %>% 
+  filter(in_age_range =="yes") %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  group_by(PARTICIPATING, SEX) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  mutate(Share = round(count / sum(count)*100,1)) %>%
+  select(-c(count)) %>%
   filter(PARTICIPATING != "Missing") %>%
-  group_by(FULL_PART_TIME,PARTICIPATING) %>%
-  summarise(Observations = n(),
-            weighted_n = sum(WPFINWGT)) %>%
-  ungroup() %>%
-  group_by(FULL_PART_TIME) %>%
-  mutate(share = weighted_n/sum(weighted_n)) 
+  pivot_wider(names_from = SEX,
+              values_from = Share) %>%
+  mutate(`Female - Male Participating Gap` = Female - Male)
 
-sipp_2023 %>%
-  filter(MATCHING != "Missing") %>%
-  group_by(FULL_PART_TIME,MATCHING) %>%
-  summarise(Observations = n(),
-            weighted_n = sum(WPFINWGT)) %>%
+sipp_2023 %>% 
+  filter(in_age_range =="yes") %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  group_by(MATCHING, SEX) %>%
+  summarise(count = sum(WPFINWGT)) %>%
   ungroup() %>%
-  group_by(FULL_PART_TIME) %>%
-  mutate(share = weighted_n/sum(weighted_n)) 
+  mutate(Share = round(count / sum(count)*100,1)) %>%
+  select(-c(count)) %>%
+  filter(MATCHING != "Missing") %>%
+  pivot_wider(names_from = SEX,
+              values_from = Share) %>%
+  mutate(`Female - Male Participating Gap` = Female - Male)
