@@ -44,14 +44,13 @@ sipp_2023 = read.csv("sipp_2023_wrangled.csv")
 
 sipp_2023 %>%
   filter(in_age_range =="yes") %>%
-  filter(FULL_PART_TIME=="full time") %>%
+  filter(FULL_PART_TIME=="full time") %>% # change to "part time" for alternative cut.
   rename(`Has access to an Employer Retirement Plan`=ANY_RETIREMENT_ACCESS) %>%
   group_by(`Has access to an Employer Retirement Plan`) %>%
   summarise(count = sum(WPFINWGT)) %>%
   ungroup() %>%
   mutate(Share = count / sum(count)*100) %>%
   select(-c(count))
-
 
 # participate
 
@@ -98,7 +97,6 @@ ACCESS_decile = sipp_2023 %>%
               values_from = "Share")
 
 
-
 PARTICIPATE_decile = sipp_2023 %>%
   filter(in_age_range =="yes") %>%
   filter(PARTICIPATING !="Missing") %>%
@@ -132,23 +130,37 @@ write.xlsx(ACCESS_decile, paste(path_output, "ACCESS_decile.xlsx", sep = "/"))
 write.xlsx(PARTICIPATE_decile, paste(path_output, "PARTICIPATE_decile.xlsx", sep = "/"))
 write.xlsx(MATCH_decile, paste(path_output, "MATCH_decile.xlsx", sep = "/"))
 
+# for doc- show the deciles
 earning_Deciles = sipp_2023 %>%
   filter(in_age_range =="yes") %>%
   filter(FULL_PART_TIME=="full time") %>%
   mutate(INCOME_DECILE = ntile(TFTOTINC, 10)) %>%
   ungroup() %>%
   group_by(INCOME_DECILE) %>%
-  mutate(val = median(TFTOTINC,na.rm=TRUE)) %>%
+  mutate(val = max(TFTOTINC,na.rm=TRUE)) %>%
   select(val, INCOME_DECILE)
 
-earning_Deciles = unique(earning_Deciles) %>% 
-  arrange(INCOME_DECILE) %>% 
-  mutate(val = val*12) 
+earning_Deciles = unique(earning_Deciles)
 earning_Deciles
 
 
+# matching conditional on participating, for the lowest decile.
+sipp_2023 %>%
+  filter(in_age_range =="yes") %>%
+  filter(FULL_PART_TIME=="part time") %>%
+  filter(PARTICIPATING =="Yes") %>%
+  filter(MATCHING!="Missing") %>%
+  filter(TFTOTINC <=3217) %>%
+  rename(`Employer contributes to Employer Retirement Plan`=MATCHING) %>%
+  group_by(`Employer contributes to Employer Retirement Plan`) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  mutate(Share = count / sum(count)*100) %>%
+  select(-c(count))
+
 ###############################
 ## Matching - by race x edu ##
+###############################
 
 MATCH_race_edu <- sipp_2023 %>% 
   filter(in_age_range =="yes") %>%
@@ -190,7 +202,10 @@ MATCH_race_edu = MATCH_race_edu %>% filter(RACE!="Mixed/Other") %>%
   )) %>%
   mutate(EDUCATION = ifelse(EDUCATION == "Bachelor's degree or higher","BA+",EDUCATION),
          EDUCATION = ifelse(EDUCATION == "High School or less" , "HS or less",EDUCATION))
-      
+     
+write.xlsx(MATCH_race_edu,
+           paste(path_output, "race_education_plot.xlsx",sep="/"))
+ 
 # R ggplot bar graphs for matching
 MATCH_race_edu %>%
   ggplot(aes(fill=MATCHING, y=Share, x=reorder(EDUCATION,order))) + 
@@ -210,7 +225,6 @@ MATCH_race_edu %>%
   geom_text(aes(label = scales::percent(round(label/100,3)),accuracy = 1L),vjust = 1.2,size=2.5)
 
 ggsave(paste(path_output, "plot.png",sep="/"))
-
 
 ###############################################
 ## Matching, Participation, Access - by sex ##
