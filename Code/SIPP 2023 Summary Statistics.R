@@ -30,10 +30,10 @@ if (!current_user %in% names(project_directories)) {
 }
 path_project <- project_directories[[current_user]]
 path_data = file.path(path_project, "Data")
-path_output = file.path(path_project, "Output")
+path_output = file.path(path_project, "Output/SIPP")
 
 # Set working directory for SIPP data
-setwd(path_data)
+setwd(path_output)
 
 sipp_2023 = read.csv("sipp_2023_wrangled.csv")
 
@@ -85,7 +85,7 @@ sipp_2023 %>%
 
 ACCESS_decile = sipp_2023 %>%
   filter(in_age_range =="yes") %>%
-  mutate(INCOME_DECILE = ntile(TFTOTINC, 10)) %>%
+  mutate(INCOME_DECILE = ntile(TPTOTINC, 10)) %>%
   filter(FULL_PART_TIME=="full time") %>%
   group_by(ANY_RETIREMENT_ACCESS, INCOME_DECILE) %>%
   summarise(count = sum(WPFINWGT)) %>%
@@ -101,7 +101,7 @@ PARTICIPATE_decile = sipp_2023 %>%
   filter(in_age_range =="yes") %>%
   filter(PARTICIPATING !="Missing") %>%
   filter(FULL_PART_TIME=="full time") %>%
-  mutate(INCOME_DECILE = ntile(TFTOTINC, 10)) %>%
+  mutate(INCOME_DECILE = ntile(TPTOTINC, 10)) %>%
   group_by(PARTICIPATING, INCOME_DECILE) %>%
   summarise(count = sum(WPFINWGT)) %>%
   ungroup() %>%
@@ -115,7 +115,7 @@ MATCH_decile = sipp_2023 %>%
   filter(in_age_range =="yes") %>%
   filter(MATCHING!="Missing") %>%
   filter(FULL_PART_TIME=="full time") %>%
-  mutate(INCOME_DECILE = ntile(TFTOTINC, 10)) %>%
+  mutate(INCOME_DECILE = ntile(TPTOTINC, 10)) %>%
   group_by(MATCHING, INCOME_DECILE) %>%
   summarise(count = sum(WPFINWGT)) %>%
   ungroup() %>%
@@ -134,10 +134,10 @@ write.xlsx(MATCH_decile, paste(path_output, "MATCH_decile.xlsx", sep = "/"))
 earning_Deciles = sipp_2023 %>%
   filter(in_age_range =="yes") %>%
   filter(FULL_PART_TIME=="full time") %>%
-  mutate(INCOME_DECILE = ntile(TFTOTINC, 10)) %>%
+  mutate(INCOME_DECILE = ntile(TPTOTINC, 10)) %>%
   ungroup() %>%
   group_by(INCOME_DECILE) %>%
-  mutate(val = max(TFTOTINC,na.rm=TRUE)) %>%
+  mutate(val = max(TPTOTINC,na.rm=TRUE)) %>%
   select(val, INCOME_DECILE)
 
 earning_Deciles = unique(earning_Deciles)
@@ -150,7 +150,7 @@ sipp_2023 %>%
   filter(FULL_PART_TIME=="part time") %>%
   filter(PARTICIPATING =="Yes") %>%
   filter(MATCHING!="Missing") %>%
-  filter(TFTOTINC <=3217) %>%
+  filter(TPTOTINC <=2199) %>%
   rename(`Employer contributes to Employer Retirement Plan`=MATCHING) %>%
   group_by(`Employer contributes to Employer Retirement Plan`) %>%
   summarise(count = sum(WPFINWGT)) %>%
