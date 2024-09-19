@@ -1,6 +1,6 @@
-Methodology for identifying access, participation, and matching.
+<h2>Methodology for identifying access, participation, and matching.</h2>
 
-1. SCF
+1. <h3>SCF</h3>
 Universe: subset of employed individuals, ages 18-65
 
 Access: 
@@ -69,11 +69,11 @@ X11047 - Does your employer/the business make contributions to this plan? [1st j
 X11147 -  Does your employer/the business make contributions to this plan? [2nd job]
 
 
-2. NCS
+2.<h3>NCS</h3>
 (Provided in public release file summary for private employment, based on all workers)
 
 
-3. CPS ASEC
+3. <h3>CPS ASEC</h3>
 Universe: Subset of employed individuals (self employed, part or full time), ages 18-65
 
 Access: PENSION == 2 | PENSION == 3
@@ -83,7 +83,7 @@ Participates: PENSION == 3
 Codebook:  https://cps.ipums.org/cps-action/variables/PENSION#codes_section
 
 
-4. SIPP
+4. <h3>SIPP</h3>
 Universe: subset of non-government employed individuals, ages 18-65
 
 Access: 
