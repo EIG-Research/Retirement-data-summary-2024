@@ -4,32 +4,31 @@
 * Description: compute retirement toplines, as reported
 	* by the CPS ASEC supplement
 	
-cd "/Users/sarah/Library/CloudStorage/GoogleDrive-sarah@eig.org/My Drive/projects/retirement/data/CPS"
+cd ""
 
-use cps_00013.dta, clear // CPS data 2014-2023
+use cps_00022.dta, clear // CPS data 2014-2023
 
 * Universe of persons:
 	* 18-65
 	* employed in the reference period
-	* working full time.
+	* non-zero earnings
+	* working full time (35 hrs+)
 	* not in government work. 
+	* employed in non-government position. not self employed.	
 
-keep if age >=18 & age <=65 & (empstat==10 | empstat==12)
+keep if uhrswork1 >=35 & uhrswork1 <999
+keep if age >=18 & age <=65
+keep if classwkr <24 & classwkr >=20
+keep if inctot > 0
 
-gen full_time = 1*(uhrswork1 >=35) + 2*(uhrswork1 >0 & uhrswork1 <35)
 
-keep if full_time ==1
+* total labor force w/ specifications: 
+* collapse (sum) asecwth, by(year)
 
-* non-government work
-keep if ind < 9370
-
-/*
-* total labor force 
-collapse (count) obs = pernum [pw=asecwth], by(year)
-*/
 
 gen access = pension == 2 | pension ==3 // retirement plan exists
 gen participate = pension ==3 			// included in retirement plan
+
 
 	* share who have access
 /*
@@ -37,11 +36,11 @@ collapse (count) obs = pernum [pw=asecwth], by(year access)
 bysort year: egen total_obs = sum(obs)
 gen percent = (obs / total_obs)*100
 */
-/*
-	* share who participate
 
+
+	* share who participate
+/*
 collapse (count) obs = pernum [pw=asecwth], by(year participate)
 bysort year: egen total_obs = sum(obs)
 gen percent = (obs / total_obs)*100
 */
-
