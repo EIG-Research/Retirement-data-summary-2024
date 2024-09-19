@@ -36,7 +36,7 @@ use cps_data.dta, clear // CPS data, 2023
 	keep if age >=16
 	keep if classwkr <24 & classwkr >=20
 	keep if inctot > 0
-	keep if inctot <42200
+	keep if inctot <42200 /* comment out for universe
 */ 
 
 
