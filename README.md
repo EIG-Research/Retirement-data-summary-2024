@@ -140,9 +140,13 @@ Access:
       
       EOWN_PENSION == 2 ~ "No"
 
-Participates: ESCNTYN_401 == 1
+Participates: 
 
-Employer Contributes: EECNTYN_401 ==1
+	ESCNTYN_401 == 1
+
+Employer Contributes: 
+	
+ 	EECNTYN_401 ==1
 
 Codebook: [link](https://www.census.gov/data-tools/demo/uccb/sippdict)
 
