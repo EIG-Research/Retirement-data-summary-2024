@@ -5,7 +5,7 @@
 	* by the Survey of Consumer Finances
 	
 clear all	
-cd "/Users/sarah/Library/CloudStorage/GoogleDrive-sarah@eig.org/My Drive/projects/retirement/data/"
+cd ""
 
 set maxvar 10000
 use  p22i6.dta, clear
