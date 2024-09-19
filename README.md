@@ -6,39 +6,67 @@
 Universe: subset of employed individuals, ages 18-65
 
 Access: 
-	X11032>0			OR
+	
+ 	X11032>0			OR
+ 
 	X11132>0			OR
-	X11332>0			OR
-	X11432>0			OR
+
+ 	X11332>0			OR
+
+ 	X11432>0			OR
+ 
 	X11032==-1			OR
-	X11132==-1			OR
+	
+ 	X11132==-1			OR
+ 
 	X11332==-1			OR
+ 
 	X11432==-1			OR
+ 
 	X5316==1 & X6461==1	OR
-	X5324==1 & X6466==1	OR
-	X5332==1 & X6471==1	OR
-	X5416==1 & X6476==1	OR
-	X4136 == 1
+	
+ 	X5324==1 & X6466==1	OR
+	
+ 	X5332==1 & X6471==1	OR
+	
+ 	X5416==1 & X6476==1	OR
+	
+ 	X4136 == 1
 
 Participates:  
-	X11032>0			OR
-	X11132>0			OR
-	X11332>0			OR
-	X11432>0			OR
-	X11032==-1			OR
-	X11132==-1			OR
-	X11332==-1			OR
-	X11432==-1			OR
-	X5316==1 & X6461==1	OR
-	X5324==1 & X6466==1	OR
-	X5332==1 & X6471==1	OR
-	X5416==1 & X6476==1
+	
+ 	X11032>0			OR
+	
+ 	X11132>0			OR
+	
+ 	X11332>0			OR
+	
+ 	X11432>0			OR
+	
+ 	X11032==-1			OR
+	
+ 	X11132==-1			OR
+	
+ 	X11332==-1			OR
+	
+ 	X11432==-1			OR
+	
+ 	X5316==1 & X6461==1	OR
+	
+ 	X5324==1 & X6466==1	OR
+	
+ 	X5332==1 & X6471==1	OR
+	
+ 	X5416==1 & X6476==1
 
 Employer Contributes:
-	X11047==1			OR
-	X11147==1			OR
+	
+ 	X11047==1			OR
+	
+ 	X11147==1			OR
 
 Codebook:
+
 [link](https://www.federalreserve.gov/econres/files/codebk2022.txt)
 
 [link](https://www.federalreserve.gov/econres/files/bulletin.macro.txt) (for definition of participation)
@@ -93,14 +121,23 @@ Codebook:  [link](https://cps.ipums.org/cps-action/variables/PENSION#codes_secti
 Universe: subset of non-government employed individuals, ages 18-65
 
 Access: 
+      
       EMJOB_401 == 1 ~ "Yes",
+      
       EMJOB_IRA == 1 ~ "Yes",
+      
       EMJOB_PEN == 1 ~ "Yes",
+      
       EMJOB_401 == 2 ~ "No",
+      
       EMJOB_IRA == 2 ~ "No",
+      
       EMJOB_PEN == 2 ~ "No",
+      
       EOWN_THR401  == 2 ~ "No",
+      
       EOWN_IRAKEO  == 2 ~ "No",
+      
       EOWN_PENSION == 2 ~ "No"
 
 Participates: ESCNTYN_401 == 1
