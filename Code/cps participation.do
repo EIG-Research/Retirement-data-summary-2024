@@ -8,6 +8,7 @@ cd ""
 
 use cps_00022.dta, clear // CPS data 2014-2023
 
+
 * Universe of persons:
 	* 18-65
 	* employed in the reference period
@@ -17,15 +18,25 @@ use cps_00022.dta, clear // CPS data 2014-2023
 	* employed in non-government position. not self employed.	
 
 keep if uhrswork1 >=35 & uhrswork1 <999
-keep if age >=18 & age <=65
+keep if age >=16
 keep if classwkr <24 & classwkr >=20
 keep if inctot > 0
+ 
+/*
+	* RSAA universe
+keep if uhrswork1 <999
+keep if age >=16
+keep if classwkr <24 & classwkr >=20
+keep if inctot > 0
+keep if inctot <42200
+*/ 
 
 
 * total labor force w/ specifications: 
-* collapse (sum) asecwth, by(year)
+ collapse (sum) asecwth, by(year)
 
 
+/*
 gen access = pension == 2 | pension ==3 // retirement plan exists
 gen participate = pension ==3 			// included in retirement plan
 
