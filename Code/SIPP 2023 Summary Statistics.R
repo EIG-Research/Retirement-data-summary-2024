@@ -195,6 +195,22 @@ earning_Deciles = unique(earning_Deciles)
 earning_Deciles
 
 
+# access -- top and bottom 50%
+sipp_2023 %>%
+  filter(in_age_range =="yes") %>%
+  mutate(INCOME_DECILE = ntile(TPTOTINC, 2)) %>%
+  filter(FULL_PART_TIME=="full time") %>%
+  group_by(ANY_RETIREMENT_ACCESS, INCOME_DECILE) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  group_by(INCOME_DECILE) %>%
+  mutate(Share = count / sum(count)*100) %>%
+  select(-c(count))  %>%
+  pivot_wider(names_from = INCOME_DECILE,
+              values_from = "Share")
+
+
+
 #####################################
 # matching conditional on participating
 
@@ -429,10 +445,6 @@ sipp_2023 %>%
   summarise(labor_force = sum(WPFINWGT))
 
 
-
-
-
-
 ########
 # RSAA #
 ########
@@ -460,18 +472,6 @@ sipp_2023 %>%
     TRUE ~ NA)) %>%
   group_by(`Eligible for full matching benefits`) %>%
   summarise(count = sum(WPFINWGT)) %>%
-  ungroup() %>%
-  mutate(Share = count / sum(count)*100) %>%
-  select(-c(count))
-
-# total people
-sipp_2023 %>%
-  filter(TAGE>15) %>%
-  filter(TPTOTINC < 42200/12 ~ "eligible for full matching",
-    TPTOTINC >= 42200/12 ~ "not eligible for full matching",
-    TRUE ~ NA)) %>%
-  group_by(`Eligible for full matching benefits`) %>%
-  summarise(count = sum(WPFINWGT))%>%
   ungroup() %>%
   mutate(Share = count / sum(count)*100) %>%
   select(-c(count))
