@@ -1,5 +1,7 @@
 <h2>Methodology for identifying access, participation, and matching.</h2>
 
+***
+
 1. <h3>SCF</h3>
 Universe: subset of employed individuals, ages 18-65
 
@@ -37,8 +39,8 @@ Employer Contributes:
 	X11147==1			OR
 
 Codebook:
-https://www.federalreserve.gov/econres/files/codebk2022.txt
-https://www.federalreserve.gov/econres/files/bulletin.macro.txt (for definition of participation)
+[link](https://www.federalreserve.gov/econres/files/codebk2022.txt)
+[link](https://www.federalreserve.gov/econres/files/bulletin.macro.txt) (for definition of participation)
 
 X11032 - What is the balance of your pension account now? [1st job]
 
@@ -68,10 +70,12 @@ X11047 - Does your employer/the business make contributions to this plan? [1st j
 
 X11147 -  Does your employer/the business make contributions to this plan? [2nd job]
 
+***
 
-2.<h3>NCS</h3>
+2. <h3>NCS</h3>
 (Provided in public release file summary for private employment, based on all workers)
 
+***
 
 3. <h3>CPS ASEC</h3>
 Universe: Subset of employed individuals (self employed, part or full time), ages 18-65
@@ -80,8 +84,9 @@ Access: PENSION == 2 | PENSION == 3
 
 Participates: PENSION == 3
 
-Codebook:  https://cps.ipums.org/cps-action/variables/PENSION#codes_section
+Codebook:  [link](https://cps.ipums.org/cps-action/variables/PENSION#codes_section)
 
+***
 
 4. <h3>SIPP</h3>
 Universe: subset of non-government employed individuals, ages 18-65
@@ -101,7 +106,7 @@ Participates: ESCNTYN_401 == 1
 
 Employer Contributes: EECNTYN_401 ==1
 
-Codebook: https://www.census.gov/data-tools/demo/uccb/sippdict
+Codebook: [link](https://www.census.gov/data-tools/demo/uccb/sippdict)
 
 EMJOB_PEN - Any defined-benefit or cash balance plan(s) provided through main employer or business during the reference period.
 
