@@ -178,9 +178,6 @@ sipp_2023 = sipp_2023 %>%
          "MATCHING", "MONTHCODE", "TJB1_JOBHRS1", "TOTYEARINC",
          "in_age_range","FULL_PART_TIME", "TVAL_RET")
 
-sipp_2023 = sipp_2023 %>%
-   filter(MONTHCODE == 12) # 
-
 ################################
 # filtering
     # 18-65 years old,
