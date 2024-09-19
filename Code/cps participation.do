@@ -6,7 +6,7 @@
 	
 cd ""
 
-use cps_00022.dta, clear // CPS data 2014-2023
+use cps_data.dta, clear // CPS data, 2023
 
 
 * Universe of persons:
