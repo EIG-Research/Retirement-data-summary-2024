@@ -18,7 +18,7 @@ use cps_00022.dta, clear // CPS data 2014-2023
 	* employed in non-government position. not self employed.	
 
 keep if uhrswork1 >=35 & uhrswork1 <999
-keep if age >=16
+keep if age >=18 & age<65
 keep if classwkr <24 & classwkr >=20
 keep if inctot > 0
  
