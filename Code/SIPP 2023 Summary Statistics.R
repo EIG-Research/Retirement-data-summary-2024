@@ -56,6 +56,16 @@ access = sipp_2023 %>%
   mutate(Share = count / sum(count)*100) %>%
   select(-c(count))
 
+access_all = sipp_2023 %>% # full and part time workers
+  filter(in_age_range =="yes") %>%
+  filter(ANY_RETIREMENT_ACCESS!="Missing") %>%
+  rename(`Has access to an Employer Retirement Plan`=ANY_RETIREMENT_ACCESS) %>%
+  group_by(`Has access to an Employer Retirement Plan`) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  mutate(Share = count / sum(count)*100) %>%
+  select(-c(count))
+
 access
 
 
@@ -88,6 +98,16 @@ match = sipp_2023 %>%
   mutate(Share = count / sum(count)*100) %>%
   select(-c(count))
 
+match_all = sipp_2023 %>% # full and part time workers
+  filter(in_age_range =="yes") %>%
+  filter(MATCHING!="Missing") %>%
+  rename(`Employer contributes to Employer Retirement Plan`=MATCHING) %>%
+  group_by(`Employer contributes to Employer Retirement Plan`) %>%
+  summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  mutate(Share = count / sum(count)*100) %>%
+  select(-c(count))
+
 match
 
 
@@ -103,6 +123,11 @@ print("total full time workers not participating")
 round(participate[1,2]/100*93.4,2)
 
 
+print("all workers without matching (full and part)")
+round(access_all[1,2]/100*107.9,2)
+
+print("all workers without access (full and part)")
+round(match_all[1,2]/100*107.9,2)
 
 #########################################################
 ## Access, Participation, Matching - by income deciles ##
@@ -156,7 +181,7 @@ write.xlsx(PARTICIPATE_decile, paste(path_output, "PARTICIPATE_decile.xlsx", sep
 write.xlsx(MATCH_decile, paste(path_output, "MATCH_decile.xlsx", sep = "/"))
 
 
-# display the deciles
+# display the deciles (these are monthly earnings)
 earning_Deciles = sipp_2023 %>%
   filter(in_age_range =="yes") %>%
   filter(FULL_PART_TIME=="full time") %>%
@@ -238,7 +263,7 @@ MATCH_race_edu = MATCH_race_edu %>% filter(RACE!="Mixed/Other") %>%
     MATCHING =="Yes" ~ "Has Matching",
     MATCHING =="No" ~ "Lacks Matching"
   )) %>%
-  mutate(label = ifelse(MATCHING == "Has Matching", NA, Share)) %>%
+  mutate(label = ifelse(MATCHING == "Has Matching", Share, NA)) %>%
   mutate(order = case_when(
     EDUCATION == "Overall" ~ 1,
     EDUCATION == "High School or less" ~ 2,
@@ -318,7 +343,6 @@ sipp_2023 %>%
 sipp_2023 %>% 
   filter(in_age_range =="yes") %>%
   filter(FULL_PART_TIME=="full time") %>%
-  filter(EDUCATION =="High School or less") %>%
   group_by(PARTICIPATING, SEX) %>%
   summarise(count = sum(WPFINWGT)) %>%
   ungroup() %>%
@@ -336,13 +360,13 @@ sipp_2023 %>%
   group_by(MATCHING, SEX) %>%
   summarise(count = sum(WPFINWGT)) %>%
   ungroup() %>%
+  group_by(SEX) %>%
   mutate(Share = round(count / sum(count)*100,1)) %>%
   select(-c(count)) %>%
   filter(MATCHING != "Missing") %>%
   pivot_wider(names_from = SEX,
               values_from = Share) %>%
   mutate(`Female - Male Participating Gap` = Female - Male)
-
 
 
 #gap by low education level
@@ -436,6 +460,18 @@ sipp_2023 %>%
     TRUE ~ NA)) %>%
   group_by(`Eligible for full matching benefits`) %>%
   summarise(count = sum(WPFINWGT)) %>%
+  ungroup() %>%
+  mutate(Share = count / sum(count)*100) %>%
+  select(-c(count))
+
+# total people
+sipp_2023 %>%
+  filter(TAGE>15) %>%
+  filter(TPTOTINC < 42200/12 ~ "eligible for full matching",
+    TPTOTINC >= 42200/12 ~ "not eligible for full matching",
+    TRUE ~ NA)) %>%
+  group_by(`Eligible for full matching benefits`) %>%
+  summarise(count = sum(WPFINWGT))%>%
   ungroup() %>%
   mutate(Share = count / sum(count)*100) %>%
   select(-c(count))
