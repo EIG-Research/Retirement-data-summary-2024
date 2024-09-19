@@ -1,74 +1,82 @@
 # load SIPP data and compile statistics for retirement demographics.
-
 rm(list = ls())
+
 ###########################
 ###   Load Packages     ###
 ###########################
-
 library(haven)
 library(dplyr)
-library(plotly)
 library(tidyr)
 library(openxlsx)
+library(ggplot2)
 
 #################
 ### Set paths ###
 #################
 
-path_project = "/Users/sarah/Library/CloudStorage/GoogleDrive-sarah@eig.org/My Drive/projects/retirement"
+# Define user-specific project directories
+project_directories <- list(
+  "bglasner" = "C:/Users/bglasner/EIG Dropbox/Benjamin Glasner/GitHub/Retirement-data-summary-2024",
+  "bngla" = "C:/Users/bngla/EIG Dropbox/Benjamin Glasner/GitHub/Retirement-data-summary-2024",
+  "Benjamin Glasner" = "C:/Users/Benjamin Glasner/EIG Dropbox/Benjamin Glasner/GitHub/Retirement-data-summary-2024",
+  "sarah" = "/Users/sarah/Library/CloudStorage/GoogleDrive-sarah@eig.org/My Drive/PROJECTS/ACTIVE/RETIREMENT"
+)
+
+# Setting project path based on current user
+current_user <- Sys.info()[["user"]]
+if (!current_user %in% names(project_directories)) {
+  stop("Root folder for current user is not defined.")
+}
+
+path_project <- project_directories[[current_user]]
 path_data = file.path(path_project, "Data")
-path_output = file.path(path_project, "Output/SIPP")
+path_output = file.path(path_project, "Output")
 
 # Set working directory for SIPP data
 setwd(path_data)
 
 #####################
 # IDENTIFIERS
-  # SHHADID - Household address ID. Used to differentiate households spawned from an original sample household.
-  # SPANEL - Panel year
-  # SSUID - Sample unit identifier. This identifier is created by scrambling together PSU, Sequence #1, Sequence #2, and the Frame Indicator for a case. It may be used in matching sample units from different waves.
-  # SWAVE - Wave number of interview
-  # PNUM - Person number
-  # MONTHCODE - Value of reference month
-  # WPFINWGT - Final person weight
-
+# SHHADID - Household address ID. Used to differentiate households spawned from an original sample household.
+# SPANEL - Panel year
+# SSUID - Sample unit identifier. This identifier is created by scrambling together PSU, Sequence #1, Sequence #2, and the Frame Indicator for a case. It may be used in matching sample units from different waves.
+# SWAVE - Wave number of interview
+# PNUM - Person number
+# MONTHCODE - Value of reference month
+# WPFINWGT - Final person weight
 # DEMOGRAPHICS -
-  # TAGE - Age as of last birthday
-  # EEDUC - What is the highest level of school ... completed or the highest degree received by December of (reference year)?
-  # ESEX - Sex of this person
-  # ERACE - What race(s) does ... consider herself/himself to be?
-  # TMETRO_INTV - metropolitian status for interview address
-
+# TAGE - Age as of last birthday
+# EEDUC - What is the highest level of school ... completed or the highest degree received by December of (reference year)?
+# ESEX - Sex of this person
+# ERACE - What race(s) does ... consider herself/himself to be?
+# TMETRO_INTV - metropolitian status for interview address
 # LABORFORCE
-  # EJB1_JBORSE - This variable describes the type of work arrangement, whether work for an employer, self employed or other.Respondents who held a job during the reference month
-  # EJB1_CLWRK - Class of worker
-
+# EJB1_JBORSE - This variable describes the type of work arrangement, whether work for an employer, self employed or other.Respondents who held a job during the reference month
+# EJB1_CLWRK - Class of worker
 # INCOME
-  # TPTOTINC - Sum of monthly earnings and income
-
+# TFTOTINC - Sum of monthly earnings and income received by family members age 15 and older, as well as SSI payments received by children under age 15
 # TRANSFERS
-  # for access - 
-    # EMJOB_401
-    # EMJOB_IRA
-    # EMJOB_PEN
-    # EOWN_THR401
-    # EOWN_IRAKEO
-    # EOWN_PENSION
-
-  # participation -
-    # ESCNTYN_401
-
-  # matching - 
-    # EECNTYN_401
-
+# for access - 
+# EMJOB_401
+# EMJOB_IRA
+# EMJOB_PEN
+# EOWN_THR401
+# EOWN_IRAKEO
+# EOWN_PENSION
+# participation -
+# ESCNTYN_401
+# matching - 
+# EECNTYN_401
 ####################
 #### load data #####
 ####################
+
 sipp_2023 = read.csv("pu2023.csv") # 2023 simplified dataset from stata export.
 
 names(sipp_2023)
 
 sipp_2023 = sipp_2023 %>%
+  filter(MONTHCODE == 12) %>% # Retirement data is collected in December, so we can drop all other months here
   mutate(
     EDUCATION = case_when(
       EEDUC >=31 & EEDUC <= 39 ~ "High School or less",
@@ -86,7 +94,7 @@ sipp_2023 = sipp_2023 %>%
       ERACE == 2 & EORIGIN ==2 ~ "Non-Hispanic Black",
       ERACE == 3 & EORIGIN ==2 ~ "Asian",
       EORIGIN == 1 ~ "Hispanic",
-      ERACE == 4 ~ "Mixed/Other",
+      ERACE == 4 & EORIGIN == 2 ~ "Mixed/Other",
       TRUE ~ "Missing"
     ),
     EMPLOYMENT_TYPE = case_when(
@@ -108,9 +116,9 @@ sipp_2023 = sipp_2023 %>%
     ),
     TOTYEARINC = TPTOTINC*12,
     ANY_RETIREMENT_ACCESS = case_when(
-      EMJOB_401 == 1 ~ "Yes",
-      EMJOB_IRA == 1 ~ "Yes",
-      EMJOB_PEN == 1 ~ "Yes",
+      EMJOB_401 == 1 ~ "Yes", # Any 401k, 403b, 503b, or Thrift Savings Plan account(s) provided through main employer or business during the reference period.
+      EMJOB_IRA == 1 ~ "Yes", # Any IRA or Keogh account(s) provided through main employer or business during the reference period.
+      EMJOB_PEN == 1 ~ "Yes", # Any defined-benefit or cash balance plan(s) provided through main employer or business during the reference period.
       EMJOB_401 == 2 ~ "No",
       EMJOB_IRA == 2 ~ "No",
       EMJOB_PEN == 2 ~ "No",
@@ -120,46 +128,87 @@ sipp_2023 = sipp_2023 %>%
       TRUE ~ "Missing"
     ),
     PARTICIPATING = case_when(
-      ESCNTYN_401 == 1 ~ "Yes",
+      ESCNTYN_401 == 1 ~ "Yes", # During the reference period, respondent contributed to the 401k, 403b, 503b, or Thrift Savings Plan account(s) provided through their main employer or business.
+      EECNTYN_401 == 1 ~ "Yes", # if they report having employer matching then we term them as participating 
+      ESCNTYN_PEN == 1 ~ "Yes", # During the reference period, respondent contributed to the defined-benefit or cash balance plan(s) provided through their main employer or business.
+      ESCNTYN_IRA == 1 ~ "Yes", # During the reference period, respondent contributed to the IRA or Keogh account(s) provided through their main employer or business.
       ESCNTYN_401 == 2 ~ "No",
-      is.na(ESCNTYN_401) ~ "No"
+      ESCNTYN_PEN == 2 ~ "No",
+      ESCNTYN_IRA == 2 ~ "No",
+      EOWN_THR401  == 2 ~ "No",
+      EOWN_IRAKEO  == 2 ~ "No",
+      EOWN_PENSION == 2 ~ "No",
+      TRUE ~ "Missing"
     ),
     MATCHING = case_when(
-      EECNTYN_401 == 1 ~ "Yes",
+      EECNTYN_401 == 1 ~ "Yes", # Main employer or business contributed to respondent's 401k, 403b, 503b, or Thrift Savings Plan account(s) during the reference period.
+      EECNTYN_IRA == 1  ~ "Yes", # Main employer or business contributed to respondent's IRA or Keogh account(s) during the reference period.
       EECNTYN_401 == 2 ~ "No",
-      is.na(EECNTYN_401) ~ "No"
+      EECNTYN_IRA == 2 ~ "No",
+      EOWN_THR401  == 2 ~ "No",
+      EOWN_IRAKEO  == 2 ~ "No",
+      EOWN_PENSION == 2 ~ "No",
+      # is.na(EECNTYN_401) ~ "No",
+      TRUE ~ "Missing"
     ),
-    PARTICIPATING = ifelse(MATCHING=="Yes", "Yes",  PARTICIPATING),
     METRO_STATUS = case_when(
       TMETRO_INTV == 1 ~ "Metropolitan area",
       TMETRO_INTV == 2 ~ "Nonmetropolitan area",
-      TMETRO_INTV == 3 ~ "Not identified"
-    )
+      TMETRO_INTV == 3 ~ "Not identified",
+      TRUE ~ NA
+    ),
+    FULL_PART_TIME = case_when( # Define full time workers as those working at least 35 hours
+      TJB1_JOBHRS1 >=35 ~ "full time",
+      TJB1_JOBHRS1 >0 & TJB1_JOBHRS1< 35 ~ "part time",
+      TRUE ~ NA
+    ),
+    in_age_range = case_when(
+      TAGE >= 18 & TAGE <= 65 ~ "yes",
+      TAGE >= 0 & TAGE <= 17 ~ "no",
+      TAGE >= 66 & TAGE <= 100 ~ "no",
+      TRUE ~ NA 
+    ) # 18-65 ages
   ) %>%
   select("SHHADID", "SPANEL", "SSUID", "SWAVE", "PNUM", "MONTHCODE", "WPFINWGT",
-  "TAGE", "EDUCATION", "SEX", "RACE", "METRO_STATUS",
-  "EMPLOYMENT_TYPE", "CLASS_OF_WORKER",
-  "TPTOTINC",
-  "ANY_RETIREMENT_ACCESS",
-  "PARTICIPATING",
-  "MATCHING", "MONTHCODE", "TJB1_JOBHRS1", "TOTYEARINC")
-  
-
-# demographic filtering: 
-  # only 18-65, non-government,
-  # by full/part time status
+         "TAGE", "EDUCATION", "SEX", "RACE", "METRO_STATUS",
+         "EMPLOYMENT_TYPE", "CLASS_OF_WORKER",
+         "TPTOTINC",
+         "ANY_RETIREMENT_ACCESS",
+         "PARTICIPATING",
+         "MATCHING", "MONTHCODE", "TJB1_JOBHRS1", "TOTYEARINC",
+         "in_age_range","FULL_PART_TIME", "TVAL_RET")
 
 sipp_2023 = sipp_2023 %>%
-  filter(EMPLOYMENT_TYPE == "Employer" | EMPLOYMENT_TYPE=="Self-employed (owns a business)") %>%
+   filter(MONTHCODE == 12) # 
+
+################################
+# filtering
+    # 18-65 years old,
+    # Private employees
+    # Full and part-time workers with non-zero hours worked per week
+    # Non-zero income
+################################
+
+sipp_2023 = sipp_2023 %>%
+  filter(in_age_range == "yes") %>%
+  filter(EMPLOYMENT_TYPE == "Employer") %>%
   filter(CLASS_OF_WORKER ==  "Employee of a private, for-profit company" | 
            CLASS_OF_WORKER == "Employee of a private, not-for-profit company") %>%
-  filter(MONTHCODE == 12) %>% # avoid double-counting
-  filter(TPTOTINC >0) %>% # earning an income
-  mutate(in_age_range = ifelse(TAGE >= 18 & TAGE <= 65, "yes","no")) %>% # 18-65 ages
-  mutate(FULL_PART_TIME = case_when(
-    TJB1_JOBHRS1 >=35 ~ "full time",
-    TJB1_JOBHRS1 >0 & TJB1_JOBHRS1< 35 ~ "part time"
-  )) %>%
-  filter(!is.na(FULL_PART_TIME))
+  filter(!is.na(FULL_PART_TIME))  %>%
+  filter(TPTOTINC >0)  # earning an income 
 
-write.csv(sipp_2023, paste(path_output, "sipp_2023_wrangled.csv", sep = "/"))
+
+# save subset for export
+sipp_2023 = sipp_2023 %>%
+  select("SHHADID", "SPANEL", "SSUID", "SWAVE", "PNUM", "MONTHCODE", "WPFINWGT",
+         "TAGE", "EDUCATION", "SEX", "RACE", "METRO_STATUS",
+         "EMPLOYMENT_TYPE", "CLASS_OF_WORKER",
+         "TPTOTINC",
+         "ANY_RETIREMENT_ACCESS",
+         "PARTICIPATING",
+         "MATCHING", "MONTHCODE", "TJB1_JOBHRS1", "TOTYEARINC",
+         "in_age_range","FULL_PART_TIME", "TVAL_RET")
+
+setwd(path_output)
+
+write.csv(sipp_2023, "sipp_2023_wrangled.csv")
