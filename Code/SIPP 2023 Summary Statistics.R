@@ -123,10 +123,10 @@ print("total full time workers not participating")
 round(participate[1,2]/100*93.4,2)
 
 
-print("all workers without matching (full and part)")
+print("all workers without access (full and part)")
 round(access_all[1,2]/100*107.9,2)
 
-print("all workers without access (full and part)")
+print("all workers without matching (full and part)")
 round(match_all[1,2]/100*107.9,2)
 
 #########################################################
