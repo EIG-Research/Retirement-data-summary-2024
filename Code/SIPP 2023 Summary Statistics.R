@@ -433,18 +433,6 @@ sipp_2023 %>%
   mutate(`Female - Male Participating Gap` = Female - Male)
 
 
-######################################
-# count with, without matching, access, participation
-
-
-## total employees without matching ##
-sipp_2023 %>%
-  filter(in_age_range =="yes") %>%
-  filter(FULL_PART_TIME=="full time") %>%
-  ungroup() %>%
-  summarise(labor_force = sum(WPFINWGT))
-
-
 ########
 # RSAA #
 ########
@@ -462,16 +450,16 @@ sipp_2023 %>%
   select(-c(count))
 
 
-# what share of those without access earn < $42,200?
+# what's the share of those without access earn < $42,200?
 sipp_2023 %>% 
-  filter(ANY_RETIREMENT_ACCESS == "No") %>%
   filter(TAGE>15) %>%
-  mutate(`Eligible for full matching benefits` = case_when(
-    TPTOTINC < 42200/12 ~ "eligible for full matching",
-    TPTOTINC >= 42200/12 ~ "not eligible for full matching",
-    TRUE ~ NA)) %>%
-  group_by(`Eligible for full matching benefits`) %>%
+  mutate(under42_no_access = case_when(
+    TPTOTINC < 42200/12 & ANY_RETIREMENT_ACCESS == "No" ~ "targeted group",
+    TRUE ~ "not targeted group"
+  )) %>%
+  group_by(under42_no_access) %>%
   summarise(count = sum(WPFINWGT)) %>%
   ungroup() %>%
   mutate(Share = count / sum(count)*100) %>%
   select(-c(count))
+  
