@@ -1,6 +1,6 @@
 <h1>Who’s left out of America’s retirement savings system?</h1>
 
-This repository includes the data and necessary code to support EIG's analysis post on the state of retirement plan participation, access, and employer matching. You can find the post [here](LINK)
+This repository includes the data and necessary code to support EIG's analysis post on the state of retirement plan participation, access, and employer matching. You can find the post [here](https://eig.org/whos-left-out-of-americas-retirement-savings-system)
 
 All links are current at the time of publication.
 
@@ -179,7 +179,7 @@ EECNTYN_401 - Main employer or business contributed to respondent's 401k, 403b, 
 
 
 ***
+
 <h2>Other Notes</h2>
 
 All numbers reported for labor force size are estimated using the Current Population Survey.
-
