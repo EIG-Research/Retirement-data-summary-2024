@@ -1,27 +1,43 @@
-<h2>Methodology for identifying access, participation, and matching.</h2>
+<h1>Who’s left out of America’s retirement savings system?</h1>
+
+This repository includes the data and necessary code to support EIG's analysis post on the state of retirement plan participation, access, and employer matching. You can find the post [here](LINK)
+
+All links are current at the time of publication.
+
+Contact Benjamin Glasner with any questions at benjamin@eig.org.
+
 
 ***
 
-1. <h3>SCF</h3>
+<h2>Methodology for identifying access, participation, and matching.</h2>
+
+1. <h3>Survey of Consumer Finances </h3>
+
+Codebook:
+
+[link](https://www.federalreserve.gov/econres/files/codebk2022.txt)
+
+[link](https://www.federalreserve.gov/econres/files/bulletin.macro.txt) (for definition of participation)
+
 Universe: subset of employed individuals, ages 18-65
 
 Access: 
 	
- 	X11032>0			OR
+ 	X11032>0	OR
  
-	X11132>0			OR
+	X11132>0	OR
 
- 	X11332>0			OR
+ 	X11332>0	OR
 
- 	X11432>0			OR
+ 	X11432>0	OR
  
-	X11032==-1			OR
+	X11032==-1	OR
 	
- 	X11132==-1			OR
+ 	X11132==-1	OR
  
-	X11332==-1			OR
+	X11332==-1	OR
  
-	X11432==-1			OR
+	X11432==-1	OR
  
 	X5316==1 & X6461==1	OR
 	
@@ -35,21 +51,21 @@ Access:
 
 Participates:  
 	
- 	X11032>0			OR
+ 	X11032>0	OR
 	
- 	X11132>0			OR
+ 	X11132>0	OR
 	
- 	X11332>0			OR
+ 	X11332>0	OR
 	
- 	X11432>0			OR
+ 	X11432>0	OR
 	
- 	X11032==-1			OR
+ 	X11032==-1	OR
 	
- 	X11132==-1			OR
+ 	X11132==-1	OR
 	
- 	X11332==-1			OR
+ 	X11332==-1	OR
 	
- 	X11432==-1			OR
+ 	X11432==-1	OR
 	
  	X5316==1 & X6461==1	OR
 	
@@ -61,15 +77,9 @@ Participates:
 
 Employer Contributes:
 	
- 	X11047==1			OR
+ 	X11047==1	OR
 	
- 	X11147==1			OR
-
-Codebook:
-
-[link](https://www.federalreserve.gov/econres/files/codebk2022.txt)
-
-[link](https://www.federalreserve.gov/econres/files/bulletin.macro.txt) (for definition of participation)
+ 	X11147==1	OR
 
 X11032 - What is the balance of your pension account now? [1st job]
 
@@ -107,17 +117,21 @@ X11147 -  Does your employer/the business make contributions to this plan? [2nd 
 ***
 
 3. <h3>CPS ASEC</h3>
+
+Codebook:  [link](https://cps.ipums.org/cps-action/variables/PENSION#codes_section)
+
 Universe: Subset of employed individuals (self employed, part or full time), ages 18-65
 
 Access: PENSION == 2 | PENSION == 3
 
 Participates: PENSION == 3
 
-Codebook:  [link](https://cps.ipums.org/cps-action/variables/PENSION#codes_section)
-
 ***
 
 4. <h3>SIPP</h3>
+
+Codebook: [link](https://www.census.gov/data-tools/demo/uccb/sippdict)
+
 Universe: subset of non-government employed individuals, ages 18-65
 
 Access: 
@@ -147,8 +161,7 @@ Participates:
 Employer Contributes: 
 	
  	EECNTYN_401 ==1
-
-Codebook: [link](https://www.census.gov/data-tools/demo/uccb/sippdict)
+  
 
 EMJOB_PEN - Any defined-benefit or cash balance plan(s) provided through main employer or business during the reference period.
 
@@ -165,4 +178,10 @@ EOWN_IRAKEO - Owned any IRA or Keogh accounts during the reference period.
 ESCNTYN_401 - During the reference period, respondent contributed to the 401k, 403b, 503b, or Thrift Savings Plan account(s) provided through their main employer or business.
 
 EECNTYN_401 - Main employer or business contributed to respondent's 401k, 403b, 503b, or Thrift Savings Plan account(s) during the reference period.
+
+
+***
+<h2>Other Notes</h2>
+
+All numbers reported for labor force size are estimated using the Current Population Survey.
 
