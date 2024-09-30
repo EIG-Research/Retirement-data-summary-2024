@@ -1,6 +1,11 @@
-# summary statistics on matching, participation, access
+# DESCRIPTION:
+# this file produces all of the SIPP-based statistics cited in retirement analysis piece.
+
+# DATA SOURCE: 
+# Survey of Income and Program Participation, 2023
 
 rm(list = ls())
+
 ###########################
 ###   Load Packages     ###
 ###########################
@@ -30,13 +35,12 @@ if (!current_user %in% names(project_directories)) {
 }
 path_project <- project_directories[[current_user]]
 path_data = file.path(path_project, "Data")
-path_output = file.path(path_project, "Output/SIPP")
+path_output = file.path(path_project, "Output")
 
 # Set working directory for SIPP data
 setwd(path_output)
 
 sipp_2023 = read.csv("sipp_2023_wrangled.csv")
-
 
 
 ###################################################
@@ -69,7 +73,8 @@ access_all = sipp_2023 %>% # full and part time workers
 access
 
 
-# participate
+
+# participation
 
 participate = sipp_2023 %>%
   filter(in_age_range =="yes") %>%
@@ -85,7 +90,7 @@ participate = sipp_2023 %>%
 participate
 
 
-# match
+# matching
 
 match = sipp_2023 %>%
   filter(in_age_range =="yes") %>%
@@ -129,9 +134,10 @@ round(access_all[1,2]/100*107.9,2)
 print("all workers without matching (full and part)")
 round(match_all[1,2]/100*107.9,2)
 
-#########################################################
-## Access, Participation, Matching - by income deciles ##
-#########################################################
+
+######################################################################
+## Access, Participation, Matching - by income deciles (unweighted) ##
+######################################################################
 
 ACCESS_decile = sipp_2023 %>%
   filter(in_age_range =="yes") %>%
@@ -211,8 +217,8 @@ sipp_2023 %>%
 
 
 
-#####################################
-# matching conditional on participating
+########################################
+## matching conditional on participating
 
 # for the lowest decile.
 sipp_2023 %>%
@@ -241,6 +247,7 @@ sipp_2023 %>%
   ungroup() %>%
   mutate(Share = count / sum(count)*100) %>%
   select(-c(count))
+
 
 
 
@@ -433,9 +440,9 @@ sipp_2023 %>%
   mutate(`Female - Male Participating Gap` = Female - Male)
 
 
-########
-# RSAA #
-########
+##########
+## RSAA ##
+##########
 # $42,200 is median income for 16+ workers, full & part time.
 
 
