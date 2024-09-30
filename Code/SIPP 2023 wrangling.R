@@ -1,3 +1,6 @@
+# DESCRIPTION:
+# this file reads in the SIPP subset (variables selected in SIPP subset.do), and exports the SIPP 2023 file for analysis
+
 # load SIPP data and compile statistics for retirement demographics.
 rm(list = ls())
 
