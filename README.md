@@ -13,11 +13,9 @@ Contact Benjamin Glasner with any questions at benjamin@eig.org.
 
 1. <h3>Survey of Consumer Finances </h3>
 
-Codebook:
+Codebook: [link](https://www.federalreserve.gov/econres/files/codebk2022.txt)
 
-[link](https://www.federalreserve.gov/econres/files/codebk2022.txt)
-
-[link](https://www.federalreserve.gov/econres/files/bulletin.macro.txt) (for definition of participation)
+For the definition of participation: [link](https://www.federalreserve.gov/econres/files/bulletin.macro.txt)
 
 Universe: subset of employed individuals, ages 18-65
 
