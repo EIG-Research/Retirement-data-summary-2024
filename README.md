@@ -1,6 +1,6 @@
 <h1>Who’s left out of America’s retirement savings system?</h1>
 
-This repository includes the data and necessary code to support EIG's analysis post on the state of retirement plan participation, access, and employer matching. You can find the post [here](https://eig.org/whos-left-out-of-americas-retirement-savings-system)
+This repository includes the data and necessary code to support EIG's analysis on the state of retirement plan participation, access, and employer matching. You can find the analysis on our website here [here](https://eig.org/whos-left-out-of-americas-retirement-savings-system).
 
 All links are current at the time of publication.
 
