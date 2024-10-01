@@ -74,7 +74,7 @@ setwd(path_data)
 #### load data #####
 ####################
 
-sipp_2023 = read.csv("pu2023.csv") # 2023 simplified dataset from stata export.
+sipp_2023 = read.csv("pu2023.csv") # 2023 simplified dataset from stata export. see "1 SIPP subset.do"
 
 names(sipp_2023)
 
