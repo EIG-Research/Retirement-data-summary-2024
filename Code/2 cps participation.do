@@ -18,14 +18,14 @@ use cps_data.dta, clear // CPS data download from IPUMS, 2023
 	* not in government work. 
 	* employed in non-government position. not self employed.	
 
-	keep if uhrswork1 >=35 & uhrswork1 <999 /* >999 not in universe
-	keep if age >=18 & age<65
+	keep if uhrswork1 >=35 & uhrswork1 <999 /* >999 not in universe */
+	keep if age >=18 & age<=65
 	keep if classwkr <24 & classwkr >=20
 	keep if inctot > 0
 
 /*
 * universe for full AND part time person count
-	keep if uhrswork1 <999 /* >999 not in universe
+	keep if uhrswork1 <999 /* >999 not in universe */
 	keep if age >=18 & age <=65
 	keep if classwkr <24 & classwkr >=20
 	keep if inctot > 0
