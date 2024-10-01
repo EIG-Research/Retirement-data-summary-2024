@@ -449,7 +449,7 @@ sipp_2023 %>%
 # how many earning < $42,200 have access to retirement plan?
 sipp_2023 %>%
   filter(TPTOTINC < 42200/12) %>%
-  filter(TAGE>15) %>%
+  filter(TAGE>15) %>% # including those outside of the 18-65 age range
   group_by(ANY_RETIREMENT_ACCESS) %>%
   summarise(count = sum(WPFINWGT)) %>%
   ungroup() %>%
