@@ -183,7 +183,7 @@ sipp_2023 = sipp_2023 %>%
 
 ################################
 # filtering
-    # 18-65 years old,
+    # 18-65 years old (note: keeping in those outside of age group for all worker analysis for RSAA universe)
     # Private employees
     # Full and part-time workers with non-zero hours worked per week
     # Non-zero income
