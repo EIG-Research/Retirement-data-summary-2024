@@ -3,10 +3,11 @@
 * Project: Transfer Income
 * Description: compute retirement toplines, as reported
 	* by the CPS ASEC supplement
-	
+
+* enter user data path here -- 
 cd ""
 
-use cps_data.dta, clear // CPS data, 2023
+use cps_data.dta, clear // CPS data download from IPUMS, 2023
 
 
 * Universe of persons:
@@ -23,7 +24,7 @@ use cps_data.dta, clear // CPS data, 2023
 	keep if inctot > 0
 
 /*
-* universe for full time persons
+* universe for full AND part time person count
 	keep if uhrswork1 <999 /* >999 not in universe
 	keep if age >=18 & age <=65
 	keep if classwkr <24 & classwkr >=20
@@ -31,12 +32,12 @@ use cps_data.dta, clear // CPS data, 2023
 */
  
 /*
-	* RSAA universe
+	* RSAA universe: for RSAA population calculations
 	keep if uhrswork1 <999
 	keep if age >=16
 	keep if classwkr <24 & classwkr >=20
 	keep if inctot > 0
-	keep if inctot <42200 /* comment out for universe
+	keep if inctot <42200 /* comment out for full universe. this is eligibility
 */ 
 
 
