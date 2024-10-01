@@ -190,7 +190,6 @@ sipp_2023 = sipp_2023 %>%
 ################################
 
 sipp_2023 = sipp_2023 %>%
-  filter(in_age_range == "yes") %>%
   filter(EMPLOYMENT_TYPE == "Employer") %>%
   filter(CLASS_OF_WORKER ==  "Employee of a private, for-profit company" | 
            CLASS_OF_WORKER == "Employee of a private, not-for-profit company") %>%
