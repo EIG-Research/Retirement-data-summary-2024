@@ -4,7 +4,9 @@
 * Description: compute retirement toplines, as reported
 	* by the Survey of Consumer Finances
 	
-clear all	
+clear all
+
+* enter user path here:
 cd ""
 
 set maxvar 10000
@@ -40,9 +42,9 @@ gen contributions = (x11047==1 | x11147==1)
 
 
 
-*************************************
-* computations:
-
+************************************************************
+* access, participation, matching as reported in the table *
+************************************************************
 
 * access
 
@@ -64,7 +66,22 @@ gen contributions = (x11047==1 | x11147==1)
 */
 
 
+* matching
+/*
+collapse(count) obs=y1 [pweight = wgt], by(contributions)
+egen total_obs = sum(obs)
+	gen percent = obs/total_obs*100
+	tab percent
+*/
+
+
+
+**************************
+* additional tabulations *
+**************************
+
 * participation given access
+
 /*
 keep if plan_available==1
 	collapse(count) obs=y1 [pweight = wgt], by(receives_benefits)
@@ -74,15 +91,6 @@ keep if plan_available==1
 	tab percent
 */
 	
-
-* contributions (overall)
-/*
-collapse(count) obs=y1 [pweight = wgt], by(contributions)
-egen total_obs = sum(obs)
-	gen percent = obs/total_obs*100
-	tab percent
-
-
 
 * contributions (has access)
 /*
