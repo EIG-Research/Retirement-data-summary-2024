@@ -457,14 +457,15 @@ sipp_2023 %>%
   select(-c(count))
 
 
-# what's the share of those without access earn < $42,200?
-sipp_2023 %>% 
-  filter(TAGE>15) %>%
-  mutate(under42_no_access = case_when(
-    TPTOTINC < 42200/12 & ANY_RETIREMENT_ACCESS == "No" ~ "targeted group",
-    TRUE ~ "not targeted group"
-  )) %>%
-  group_by(under42_no_access) %>%
+# lack access & eligible here
+sipp_2023 %>%
+  filter(TAGE>15) %>% 
+  mutate(`eligible with no access` =
+           case_when(
+             TPTOTINC < 42200/12 & ANY_RETIREMENT_ACCESS == "No" ~ "eligible",
+             TRUE ~ "not eligible"
+           )) %>%
+  group_by(`eligible with no access`) %>%
   summarise(count = sum(WPFINWGT)) %>%
   ungroup() %>%
   mutate(Share = count / sum(count)*100) %>%
